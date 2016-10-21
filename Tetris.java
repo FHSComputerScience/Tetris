@@ -5,8 +5,22 @@ import java.awt.event.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.util.*;
-public class TetrisGame extends JPanel implements ActionListener, Runnable
+public class Tetris extends JPanel implements ActionListener, Runnable, KeyListener
 {
+	public static void main(String args[])
+	{
+		JFrame frame = new JFrame();
+    	frame.setTitle("My Summer Scene");
+    	frame.setSize(700, 600);
+    	frame.setPreferredSize(new Dimension(700, 600));
+    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	Tetris panel = new Tetris();
+    	frame.add(panel);
+    	frame.getContentPane().add(panel);
+    	frame.addKeyListener(panel);
+    	frame.setVisible(true);
+    	panel.run();
+	}
 	//Constants
 	private static final int XOFFSET = 0; //offset of board from upper-left corner
 	private static final int YOFFSET = 0; //offset of board from upper-left corner
@@ -63,12 +77,12 @@ public class TetrisGame extends JPanel implements ActionListener, Runnable
 	private int speed = BASETIMEDELAY;
 	//Number of ms between times that the piece descends
 	private static final Color BORDER_COLOR = new Color(0,102,0);
-	public TetrisGame()
+	public Tetris()
 	{
 		setLayout(null);
 		setOpaque(true);
 	}
-	public TetrisGame(int width, int height)
+	public Tetris(int width, int height)
 	{
 		this();
 		setSize(width, height);
@@ -875,6 +889,5 @@ public class TetrisGame extends JPanel implements ActionListener, Runnable
 	{
 		g.setColor(squareColor);
 		g.fillRect(XOFFSET + arrayX * SIDELENGTH, YOFFSET + arrayY * SIDELENGTH, SIDELENGTH, SIDELENGTH);
-	}	
-	public Scene getScene(){return Scene.TETRIS;};
+	}
 }
