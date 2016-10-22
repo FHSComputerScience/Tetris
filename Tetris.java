@@ -5,12 +5,9 @@ import java.awt.event.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.util.*;
-public class Tetris extends Applet implements ActionListener, Runnable, KeyListener
+public class Tetris extends JApplet implements ActionListener, Runnable, KeyListener
 {
 
-	/**
-	 * 
-	 */
 	//Constants
 	private static final int XOFFSET = 0; //offset of board from upper-left corner
 	private static final int YOFFSET = 0; //offset of board from upper-left corner
@@ -32,6 +29,7 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 		//no +2- originally it was used for descent but it has become obsolete
 		//+3 = currently falling piece
 	private Color[][] boardColors = new Color[WIDTH + 9][HEIGHT + 2]; //array that holds the colors of each of the tiles
+	
 	//Variables to keep track of various things
 	private int score; //score of the player
 	private long timeDiff = 0;
@@ -67,6 +65,8 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 	private int speed = BASETIMEDELAY;
 	//Number of ms between times that the piece descends
 	private static final Color BORDER_COLOR = new Color(0,102,0);
+
+	private javax.swing.Timer frameUpdater;
 	
 	char replay = 'y';
 	
@@ -75,21 +75,24 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 	//APPLET=FUNCTIONS=====================================================================================
 	public void init()
 	{
+		
 		addKeyListener(this);
     	setFocusable(true);
     	requestFocusInWindow();
     	backgroundThread = new Thread(this);
     	backgroundThread.start();
+    	frameUpdater = new javax.swing.Timer(20, new ActionListener() {public void actionPerformed(ActionEvent e){repaint();}});
+    	frameUpdater.start();
 	}
 	
-    /*public void destroy() 
+    public void destroy() 
     { 
          // will cause thread to stop looping 
          replay = 'n'; 
          // destroy it. 
          backgroundThread = null;
          System.out.println("Destroyed!");
-    } */
+    }
 	
 	public Tetris()
 	{
@@ -106,7 +109,7 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 	{
 		//Main
 		initBoard(); //fills out default values for board array
-		repaint();
+		
 		do
 		{
 			choosePiece(); //gets a piece for piecePreview- necessary so that the second choosePiece() will put this into the currentPiece slot
@@ -116,7 +119,7 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 	    		choosePiece(); //Moves nextPiece to currentPiece, generates currentPiece
 				previewPiece();//fills out the piecePreviewArray with coordinates and updates board accordingly
     			createPiece(); //fills out the pieceArray with coordinates and updates board accordingly
-    			repaint();
+    			
 	   			if(checkDescent()) //is it blocked
 	 			{
 		  			timerDrop = new javax.swing.Timer(speed, this); //panel now has a timer that activates once every speed ms.
@@ -147,20 +150,13 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
     			checkRows(); //are any full? if so, clears them and updates the score.
    	 			increaseSpeed(); //recalculates speed based on totalRowsCleared
 	    		level = totalRowsCleared/10 + 1; //updates level
-	    		repaint();
+	    		
  	   		}
- 	   		//Here goes 
-		} while ((replay == 'y') || (replay == 'Y'));
-    	//SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), 0x0F );
-    	repaint();
-		
+		} while ((replay == 'y') || (replay == 'Y'));		
 	}
 	
 	public void paint(Graphics g)
 	{
-		super.paint(g);
-		g.setColor(Color.BLACK);
-		g.fillRect(0,0,this.getWidth(),this.getHeight());
 		if(gameOver == true)
 		{
 			g.setColor(Color.GREEN);
@@ -170,17 +166,15 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 		}
 		else
 		{
-			g.setColor(Color.BLACK);
-			g.fillRect(0,0,this.getWidth(),this.getHeight());
 			//Draws physical board
 			for (int x = 0; x < WIDTH + 9; x ++)
 			{
    			 	for (int y = 0; y < HEIGHT + 2; y ++)
  			   	{
-    				drawSquare(g, x, y, boardColors[x][y]);	
+   			 		drawSquare(g, x, y, boardColors[x][y]);
 	    		}
 		    }
-	    	drawSquare(g, 0, 0 , BORDER_COLOR);
+			drawSquare(g,0,0,boardColors[0][0]);
 		}
 		g.setFont((new JLabel()).getFont());
 		g.drawString("Score: " + Integer.toString(score),XSCORE,YSCORE);
@@ -191,7 +185,6 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 		if (checkDescent())
     	{ 
        		descend();
-       		repaint();
     	}
     	timeDiff = System.currentTimeMillis();
     }
@@ -202,7 +195,7 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 
 	public void initBoard()
 	{
-		for (int i = 0; i < (WIDTH+2); i++)
+		for (int i = 1; i < (WIDTH+2); i++)
 		{
     		convertSquare(i,0,-2,BORDER_COLOR);
     		convertSquare(i,HEIGHT+1,-1,BORDER_COLOR);
@@ -221,11 +214,14 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
     	}
     	for(int x = WIDTH + 2; x < WIDTH + 9; x++)
     	{
-    		for(int y=0;y <= HEIGHT + 1; y++)
+    		for(int y=0; y <= HEIGHT + 1; y++)
 	   		{
 	    		convertSquare(x,y,0,Color.BLACK);
     		}
     	}
+    	
+    	//Unknown why needed
+    	convertSquare(0,0,-1,BORDER_COLOR);
 	}
 	
 	public char generateRandomPiece()
@@ -290,10 +286,13 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 	{
 		int nextKeyX = WIDTH + 5;
 		int nextKeyY = 3;
-		convertSquare(piecePreviewArray[0][0],piecePreviewArray[0][1],0,Color.BLACK);
-		convertSquare(piecePreviewArray[1][0],piecePreviewArray[1][1],0,Color.BLACK);
-		convertSquare(piecePreviewArray[2][0],piecePreviewArray[2][1],0,Color.BLACK);
-		convertSquare(piecePreviewArray[3][0],piecePreviewArray[3][1],0,Color.BLACK);
+		if(piecePreviewArray[0][0] != 0)
+		{
+			convertSquare(piecePreviewArray[0][0],piecePreviewArray[0][1],0,Color.BLACK);
+			convertSquare(piecePreviewArray[1][0],piecePreviewArray[1][1],0,Color.BLACK);
+			convertSquare(piecePreviewArray[2][0],piecePreviewArray[2][1],0,Color.BLACK);
+			convertSquare(piecePreviewArray[3][0],piecePreviewArray[3][1],0,Color.BLACK);
+		}
 		switch(nextPiece)
 		{
 			case 'S': //square
@@ -784,7 +783,6 @@ public class Tetris extends Applet implements ActionListener, Runnable, KeyListe
 				break;
 			default:
 		}
-		repaint();
 	}
 	
 	
