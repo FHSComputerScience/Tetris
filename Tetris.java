@@ -5,22 +5,12 @@ import java.awt.event.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.util.*;
-public class Tetris extends JPanel implements ActionListener, Runnable, KeyListener
+public class Tetris extends Applet implements ActionListener, Runnable, KeyListener
 {
-	public static void main(String args[])
-	{
-		JFrame frame = new JFrame();
-    	frame.setTitle("My Summer Scene");
-    	frame.setSize(700, 600);
-    	frame.setPreferredSize(new Dimension(700, 600));
-    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	Tetris panel = new Tetris();
-    	frame.add(panel);
-    	frame.getContentPane().add(panel);
-    	frame.addKeyListener(panel);
-    	frame.setVisible(true);
-    	panel.run();
-	}
+
+	/**
+	 * 
+	 */
 	//Constants
 	private static final int XOFFSET = 0; //offset of board from upper-left corner
 	private static final int YOFFSET = 0; //offset of board from upper-left corner
@@ -77,31 +67,43 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 	private int speed = BASETIMEDELAY;
 	//Number of ms between times that the piece descends
 	private static final Color BORDER_COLOR = new Color(0,102,0);
+	
+	char replay = 'y';
+	
+	Thread backgroundThread;
+	
+	//APPLET=FUNCTIONS=====================================================================================
+	public void init()
+	{
+		addKeyListener(this);
+    	setFocusable(true);
+    	requestFocusInWindow();
+    	backgroundThread = new Thread(this);
+    	backgroundThread.start();
+	}
+	
+    /*public void destroy() 
+    { 
+         // will cause thread to stop looping 
+         replay = 'n'; 
+         // destroy it. 
+         backgroundThread = null;
+         System.out.println("Destroyed!");
+    } */
+	
 	public Tetris()
 	{
 		setLayout(null);
-		setOpaque(true);
 	}
+	
 	public Tetris(int width, int height)
 	{
 		this();
 		setSize(width, height);
 	}
+	
 	public void run()
 	{
-		//JPanel CopyPaste
-    	char replay = 'n';
-    	/*
-    	 *What I need to do with window
-    	*/setOpaque(false);/*
-    	window.add(panel);
-    	window.setVisible(true);
-    	
-    	*/
-    	//Default value of speed
-		//Declaring arrays
-		//Other declarations
-		setFocusable(false);
 		//Main
 		initBoard(); //fills out default values for board array
 		repaint();
@@ -154,9 +156,9 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		
 	}
 	
-	protected void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
-		super.paintComponent(g);
+		super.paint(g);
 		g.setColor(Color.BLACK);
 		g.fillRect(0,0,this.getWidth(),this.getHeight());
 		if(gameOver == true)
@@ -277,11 +279,13 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		
 		
 	}
+	
 	public void choosePiece()
 	{
 		currentPiece = nextPiece;
 		nextPiece = generateRandomPiece();
 	}
+	
 	public void previewPiece()
 	{
 		int nextKeyX = WIDTH + 5;
@@ -510,6 +514,7 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		}
 		addScore(scoreMultiplier * level);
 	}
+	
 	public void clearRow(int row)
 	{
 		for(int j = row; j > 1; j --)
@@ -547,10 +552,6 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//INPUT/MOVEMENT FUNCTIONS
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	
-	
-	
 	
 	public void rotate()
 	{
@@ -740,14 +741,17 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
                 
             
         }
+	
 	public void addScore(int points)
 	{
 		score += points;
 	}
+	
 	public void updateLevel()
 	{
 		level = (int)(((double)totalRowsCleared)/10 + 1);
 	}
+	
 	public void inputKey(int key)
 	{
 		switch(key)
@@ -782,6 +786,8 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		}
 		repaint();
 	}
+	
+	
 	public void keyReleased(KeyEvent e)
 	{
 		if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -792,14 +798,19 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
     		timerDrop.start();
 		}
 	}
+	
+	
 	public void keyTyped(KeyEvent e)
 	{
 		
 	}
+	
 	public void keyPressed(KeyEvent e)
 	{
+		System.out.println("Key pressed!");
 		inputKey(e.getKeyCode());
 	}
+	
 	public boolean checkDescent()
 	{
 		for(int i = 0; i <= 3; i ++)
@@ -811,6 +822,7 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		}
 		return true;
 	}
+	
 	public boolean checkLateralMovement(int direction)
 	{
 		for(int i = 0; i <= 3; i ++)
@@ -822,6 +834,7 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		}
 		return true;
 	}
+
 	public void move(int direction) //-1 for left, 1 for right
 	{
 		for(int i = 0; i <= 3; i ++)
@@ -835,6 +848,7 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		}
 		keyX += direction;
 	}
+
 	public void descend()
 	{
 		for(int i = 0; i <= 3; i ++)
@@ -848,6 +862,7 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		}
 		keyY ++;
 	}
+
 	public Color typeToColor(char type)
 	{
 		Color tileColor = new Color(0,0,0);
@@ -885,6 +900,7 @@ public class Tetris extends JPanel implements ActionListener, Runnable, KeyListe
 		board[arrayX][arrayY] = newType;
 		boardColors[arrayX][arrayY] = newColor;
 	}
+	
 	public void drawSquare(Graphics g, int arrayX, int arrayY, Color squareColor)
 	{
 		g.setColor(squareColor);
