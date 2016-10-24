@@ -133,7 +133,10 @@ public class TetrisGame extends JPanel implements ActionListener, Runnable
 	@Override
 	public void paintComponent(Graphics g)
 	{
+<<<<<<< HEAD
 		System.out.println("Painting!");
+=======
+>>>>>>> refs/remotes/origin/master
 		if(gameOver == true)
 		{
 			g.setColor(Color.GREEN);
