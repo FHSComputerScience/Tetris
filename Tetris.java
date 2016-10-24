@@ -16,7 +16,11 @@ public class Tetris extends JApplet
 		requestFocusInWindow();
         game.validate();
     	this.add(game);
+<<<<<<< HEAD
+        setSize(300, 300);
+=======
         setSize(500, 600);
+>>>>>>> refs/remotes/origin/master
         setVisible(true);
     	backgroundThread = new Thread(game);
     	backgroundThread.start();
@@ -45,6 +49,10 @@ public class Tetris extends JApplet
 		
 		public void keyPressed(KeyEvent e)
 		{
+<<<<<<< HEAD
+			System.out.println("Key pressed!");
+=======
+>>>>>>> refs/remotes/origin/master
 			game.inputKey(e.getKeyCode());
 		}
 		

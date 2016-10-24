@@ -1,4 +1,11 @@
 /TetrisGame.class
 /Tetris.class
+<<<<<<< HEAD
+/TetrisKeyListener.class
+/Tetris$1.class
 /TetrisGame$1.class
+/TetrisGame$TetrisActionListener.class
+=======
+/TetrisGame$1.class
+>>>>>>> refs/remotes/origin/master
 /Tetris$TetrisKeyListener.class
